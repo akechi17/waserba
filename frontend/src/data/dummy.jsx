@@ -235,6 +235,65 @@ export const links = [
   }
 ];
 
+export const linkMember = [
+  {
+    title: "Dashboard",
+    links: [
+      {
+        name: "dashboard",
+        icon: <MdDashboard />,
+      },
+    ],
+  },
+
+  {
+    title: "Koperasi",
+    links: [
+      {
+        name: "identitas koperasi",
+        icon: <HiBuildingOffice2 />,
+      },
+      {
+        name: "data anggota",
+        icon: <IoMdContacts />,
+      },
+      {
+        name: "laporan awal ekuitas",
+        icon: <FaBook />,
+      },
+      {
+        name: "piutang awal",
+        icon: <FaMoneyCheckDollar />,
+      },
+      {
+        name: "jurnal",
+        icon: <FaBook />,
+      },
+    ],
+  },
+  {
+    title: "Laporan",
+    links: [
+      {
+        name: "laporan modal anggota akhir",
+        icon: <FiEdit />,
+      },
+      {
+        name: "laporan piutang akhir",
+        icon: <FiEdit />,
+      },
+      {
+        name: "laporan SHU bagian pemilik",
+        icon: <FiEdit />,
+      },
+      // {
+      //   name: "laporan perubahan modal",
+      //   icon: <FiEdit />,
+      // },
+    ],
+  }
+];
+
 export const cartData = [
   {
     image:

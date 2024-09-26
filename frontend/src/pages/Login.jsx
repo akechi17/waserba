@@ -2,6 +2,7 @@ import React, { createRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axios-client.js";
 import {
+  Alert,
   AuthHeader,
   LoginInput,
   TelephoneInput,
@@ -70,6 +71,7 @@ const Login = () => {
             </p>
           </div>
           <div className='mt-8'>
+            {errors && <Alert text={errors} error />}
             <div className='mt-6'>
               <form className='space-y-6' onSubmit={onSubmit} method='POST'>
                 <TelephoneInput value={phoneNumber} setValue={setPhoneNumber} />

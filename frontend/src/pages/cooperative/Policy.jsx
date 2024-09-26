@@ -102,14 +102,18 @@ const Policy = () => {
   }, [policy]);
 
   return (
-    <div className={`transition duration-300 ${activeMenu && "md:max-w-5xl"}`}>
+    <div
+      className={`m-2 mt-24 transition duration-300 ${
+        activeMenu && "md:max-w-5xl"
+      }`}
+    >
       {isLoading ? (
         <div className='flex items-center justify-center h-72'>
           <span className='loading loading-spinner loading-lg'></span>
         </div>
       ) : (
-        <div className='flex'>
-          <div className='bg-white md:m-6 p-8 md:p-8 dark:bg-secondary-dark-bg rounded-3xl transition duration-300 w-7/12'>
+        <div className='md:flex'>
+          <div className='bg-white md:m-6 p-8 md:p-8 dark:bg-secondary-dark-bg rounded-3xl transition duration-300 md:w-7/12'>
             <Header category='Kebijakan' title='Koperasi' />
             <div className='overflow-x-auto'>
               <table className='table table-xs'>
@@ -209,7 +213,7 @@ const Policy = () => {
               </table>
             </div>
           </div>
-          <div className='w-5/12'>
+          <div className='md:w-5/12'>
             <div className='bg-white md:m-6 p-8 md:p-8 dark:bg-secondary-dark-bg rounded-3xl transition duration-300 w-full h-[20rem]'>
               <Header category='Pembagian Laba Usaha' title='Bagian Pemilik' />
               <div className='overflow-x-auto'>

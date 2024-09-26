@@ -12,7 +12,12 @@ class MemberController extends Controller
     public function index()
     {
         try {
-            $members = User::all();
+            $user = auth()->user();
+            if ($user->role === 'admin') {
+                $members = User::all();
+            } else {
+                $members = User::where('id', $user->id)->first();
+            }
 
             return response()->json([
                 'message' => 'Members retrieved successfully',

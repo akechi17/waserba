@@ -13,7 +13,12 @@ class PastProfitController extends Controller
     public function index()
     {
         try {
-            $pastProfits = PastProfit::with('user')->get();
+            $user = auth()->user();
+            if ($user->role === 'admin') {
+                $pastProfits = PastProfit::with('user')->get();
+            } else {
+                $pastProfits = PastProfit::where('user_id', $user->id)->with('user')->get();
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error while getting pastProfits',

@@ -13,6 +13,10 @@ const Equity = () => {
     const response = await axiosClient.get("/equities");
     return response.data.equities;
   });
+  const { data: me } = useQuery("me", async () => {
+    const response = await axiosClient.get("/me");
+    return response.data;
+  });
   const [pokok, setPokok] = useState("");
   const [wajib, setWajib] = useState("");
   const [modal, setModal] = useState("");
@@ -137,7 +141,7 @@ const Equity = () => {
                     <div>Menentukan Kepemilikan</div>
                   </th>
                   <th rowSpan={3}>Total Simpanan</th>
-                  <th rowSpan={3}>Kelola</th>
+                  {me?.role === "admin" && <th rowSpan={3}>Kelola</th>}
                 </tr>
                 <tr className='border-b-gray-700 dark:border-b-gray-200 uppercase text-gray-700 dark:text-gray-200'>
                   <th>Simpanan Pokok</th>
@@ -161,15 +165,15 @@ const Equity = () => {
               <tbody>
                 {slicedData?.map((data) => {
                   const owned =
-                    (data.equities[0]?.pokok || 0) +
-                    (data.equities[0]?.wajib || 0) +
-                    (data.equities[0]?.modal_penyertaan || 0);
+                    Number(data.equities[0]?.pokok || 0) +
+                    Number(data.equities[0]?.wajib || 0) +
+                    Number(data.equities[0]?.modal_penyertaan || 0);
 
                   const notOwned =
-                    (data.equities[0]?.sukarela || 0) +
-                    (data.equities[0]?.qard_rahn || 0) +
-                    (data.equities[0]?.wadiah || 0) +
-                    (data.equities[0]?.modal_penyertaan || 0);
+                    Number(data.equities[0]?.sukarela || 0) +
+                    Number(data.equities[0]?.qard_rahn || 0) +
+                    Number(data.equities[0]?.wadiah || 0) +
+                    Number(data.equities[0]?.modal_penyertaan || 0);
                   return (
                     <tr
                       key={data.id}
@@ -197,21 +201,23 @@ const Equity = () => {
                       </td>
                       <td>{formatNumber(notOwned || "-")}</td>
                       <td>{formatNumber(owned + notOwned || "-")}</td>
-                      <td>
-                        <div className='flex items-center justify-center gap-2'>
-                          <button
-                            className='btn btn-info btn-square btn-sm'
-                            title='Edit'
-                            onClick={() => handleEditClick(data)}
-                          >
-                            <Icon
-                              icon='bi:pencil-square'
-                              color='#fff'
-                              width='20'
-                            />
-                          </button>
-                        </div>
-                      </td>
+                      {me?.role === "admin" && (
+                        <td>
+                          <div className='flex items-center justify-center gap-2'>
+                            <button
+                              className='btn btn-info btn-square btn-sm'
+                              title='Edit'
+                              onClick={() => handleEditClick(data)}
+                            >
+                              <Icon
+                                icon='bi:pencil-square'
+                                color='#fff'
+                                width='20'
+                              />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}

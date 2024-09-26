@@ -17,22 +17,31 @@ class JournalController extends Controller
     public function index()
     {
         try {
-            $estimations = Estimation::where('id', 'like', '1-%')
+            $user = auth()->user();
+            if ($user->role === 'admin') {
+                $estimations = Estimation::where('id', 'like', '1-%')
                   ->orWhere('id', 'like', '2-%')
                   ->orWhere('id', 'like', '3-%')->get();
-            $journals = Journal::with('user', 'estimation')->get();
+                $journals = Journal::with('user', 'estimation')->get();
+
+                return response()->json([
+                    'message' => 'Journals retrieved successfully',
+                    'estimations' => $estimations,
+                    'journals' => $journals
+                ], 200);
+            } else {
+                $journals = Journal::where('user_id', $user->id)->with('user', 'estimation')->get();
+                return response()->json([
+                    'message' => 'Journals retrieved successfully',
+                    'journals' => $journals
+                ], 200);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error while getting journals',
                 'error' => $e->getMessage(),
             ], 500);
         }
-
-        return response()->json([
-            'message' => 'Journals retrieved successfully',
-            'estimations' => $estimations,
-            'journals' => $journals
-        ], 200);
     }
 
     /**

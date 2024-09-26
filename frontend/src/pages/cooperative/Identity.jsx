@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from "react";
+import React from "react";
 import { Header } from "../../components";
 import axiosClient from "../../axios-client";
 import { useQuery } from "react-query";
@@ -50,36 +50,36 @@ const Identity = () => {
               pengurus koperasi
             </h1>
             <p className='text-gray-700 dark:text-gray-200 transition duration-300 font-medium mt-5'>
-              <span className='flex'>
-                <span className='w-40'>Ketua</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Ketua</span>
                 <span>: {about.president}</span>
               </span>
-              <span className='flex'>
-                <span className='w-40'>Wakil</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Wakil</span>
                 <span>: {about.vice_president}</span>
               </span>
-              <span className='flex'>
-                <span className='w-40'>Sekretaris</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Sekretaris</span>
                 <span>: {about.secretary}</span>
               </span>
-              <span className='flex'>
-                <span className='w-40'>Pengawas1</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Pengawas1</span>
                 <span>: {about.supervisor}</span>
               </span>
-              <span className='flex'>
-                <span className='w-40'>Pengawas2</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Pengawas2</span>
                 <span>: {about.supervisor2}</span>
               </span>
-              <span className='flex'>
-                <span className='w-40'>Pengawas3</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Pengawas3</span>
                 <span>: {about.supervisor3}</span>
               </span>
-              <span className='flex'>
-                <span className='w-40'>Bendahara</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Bendahara</span>
                 <span>: {about.treasurer}</span>
               </span>
-              <span className='flex'>
-                <span className='w-40'>Dewan Pengawas Syariah</span>
+              <span className='flex flex-wrap'>
+                <span className='md:w-40 w-24'>Dewan Pengawas Syariah</span>
                 <span>: {about.syariah_supervisor}</span>
               </span>
             </p>

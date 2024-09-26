@@ -13,6 +13,10 @@ const Receivables = () => {
     const response = await axiosClient.get("/receivables");
     return response.data.receivables;
   });
+  const { data: me } = useQuery("me", async () => {
+    const response = await axiosClient.get("/me");
+    return response.data;
+  });
   const [musyarakah, setMusyarakah] = useState("");
   const [mudharabah, setMudharabah] = useState("");
   const [murabahah, setMurabahah] = useState("");
@@ -112,7 +116,7 @@ const Receivables = () => {
                   <th rowSpan={3}>Nama Anggota</th>
                   <th colSpan={3}>Piutang</th>
                   <th rowSpan={3}>Jumlah Piutang</th>
-                  <th rowSpan={3}>Kelola</th>
+                  {me?.role === "admin" && <th rowSpan={3}>Kelola</th>}
                 </tr>
                 <tr className='border-b-gray-700 dark:border-b-gray-200 uppercase text-gray-700 dark:text-gray-200'>
                   <th>Piutang Usaha musyarakah</th>
@@ -149,21 +153,23 @@ const Receivables = () => {
                           (data.receivables[0]?.murabahah || 0) || "-"
                       )}
                     </td>
-                    <td>
-                      <div className='flex items-center justify-center gap-2'>
-                        <button
-                          className='btn btn-info btn-square btn-sm'
-                          title='Edit'
-                          onClick={() => handleEditClick(data)}
-                        >
-                          <Icon
-                            icon='bi:pencil-square'
-                            color='#fff'
-                            width='20'
-                          />
-                        </button>
-                      </div>
-                    </td>
+                    {me?.role === "admin" && (
+                      <td>
+                        <div className='flex items-center justify-center gap-2'>
+                          <button
+                            className='btn btn-info btn-square btn-sm'
+                            title='Edit'
+                            onClick={() => handleEditClick(data)}
+                          >
+                            <Icon
+                              icon='bi:pencil-square'
+                              color='#fff'
+                              width='20'
+                            />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
                 <tr className='border-b-gray-700 dark:border-b-gray-200 text-gray-700 dark:text-gray-200'>

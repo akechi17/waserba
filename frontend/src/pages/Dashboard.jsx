@@ -1,9 +1,9 @@
 import React from "react";
-import { BsCurrencyDollar } from "react-icons/bs";
+import { BsBoxSeam, BsCurrencyDollar } from "react-icons/bs";
 import { GoDotFill } from "react-icons/go";
 import { IoIosMore } from "react-icons/io";
 
-import { Button } from "../components";
+import { Button, EarningData } from "../components";
 import {
   earningData,
   medicalproBranding,
@@ -12,9 +12,37 @@ import {
 } from "../data/dummy";
 import { useStateContext } from "../context/ContextProvider";
 import product9 from "../data/product9.jpg";
+import axiosClient from "../axios-client";
+import { useQuery } from "react-query";
+import { MdOutlineSupervisorAccount } from "react-icons/md";
+import { FiBarChart } from "react-icons/fi";
 
 const Dashboard = () => {
-  const { currentColor } = useStateContext();
+  const { currentColor, formatNumber } = useStateContext();
+  const { data: members, isLoading } = useQuery("members", async () => {
+    const response = await axiosClient.get("/members");
+    return response.data.members;
+  });
+
+  const calculateTotals = (members) => {
+    return members.reduce(
+      (totals, member) => {
+        totals.sim_pok += member.sim_pok || 0;
+        totals.sim_waj += member.sim_waj || 0;
+        totals.sim_suk += member.sim_suk || 0;
+
+        return totals;
+      },
+      {
+        sim_pok: 0,
+        sim_waj: 0,
+        sim_suk: 0,
+        total_setoran: 0,
+      }
+    );
+  };
+
+  const totals = members ? calculateTotals(members) : {};
 
   return (
     <div className='mt-24'>
@@ -22,8 +50,13 @@ const Dashboard = () => {
         <div className='bg-white dark:text-gray-200 dark:bg-secondary-dark-bg h-44 rounded-xl w-full lg:w-80 p-8 pt-9 m-3'>
           <div className='flex justify-between items-center'>
             <div>
-              <p className='font-bold text-gray-400'>Earnings</p>
-              <p className='text-2xl'>$63,448.78</p>
+              <p className='font-bold text-gray-400'>Jumlah</p>
+              <p className='text-2xl'>
+                Rp{" "}
+                {formatNumber(
+                  totals?.sim_pok + totals?.sim_waj + totals?.sim_suk || "-"
+                )}
+              </p>
             </div>
             <button
               type='button'
@@ -43,27 +76,33 @@ const Dashboard = () => {
           </div>
         </div>
         <div className='flex m-3 flex-wrap justify-center gap-1 items-center'>
-          {earningData.map((item) => (
-            <div
-              key={item.title}
-              className='bg-white h-44 dark:text-gray-200 dark:bg-secondary-dark-bg md:w-56  p-4 pt-9 rounded-2xl '
-            >
-              <button
-                type='button'
-                style={{ color: item.iconColor, backgroundColor: item.iconBg }}
-                className='text-2xl opacity-0.9 rounded-full  p-4 hover:drop-shadow-xl'
-              >
-                {item.icon}
-              </button>
-              <p className='mt-3'>
-                <span className='text-lg font-semibold'>{item.amount}</span>
-                <span className={`text-sm text-${item.pcColor} ml-2`}>
-                  {item.percentage}
-                </span>
-              </p>
-              <p className='text-sm text-gray-400  mt-1'>{item.title}</p>
-            </div>
-          ))}
+          <EarningData
+            iconColor='#03C9D7'
+            iconBg='#E5FAFB'
+            icon={<MdOutlineSupervisorAccount />}
+            amount={formatNumber(totals.sim_pok || "-")}
+            pcColor='red-600'
+            percentage=''
+            title='Simpanan Pokok'
+          />
+          <EarningData
+            iconColor='rgb(255, 244, 229)'
+            iconBg='rgb(254, 201, 15)'
+            icon={<BsBoxSeam />}
+            amount={formatNumber(totals.sim_waj || "-")}
+            pcColor='green-600'
+            percentage=''
+            title='Simpanan Wajib'
+          />
+          <EarningData
+            iconColor='rgb(228, 106, 118)'
+            iconBg='rgb(255, 244, 229)'
+            icon={<FiBarChart />}
+            amount={formatNumber(totals.sim_suk || "-")}
+            pcColor='green-600'
+            percentage=''
+            title='Simpanan Sukarela'
+          />
         </div>
       </div>
 

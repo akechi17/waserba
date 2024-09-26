@@ -21,6 +21,10 @@ const Journal = () => {
     const response = await axiosClient.get("/members");
     return response.data.members;
   });
+  const { data: me } = useQuery("me", async () => {
+    const response = await axiosClient.get("/me");
+    return response.data;
+  });
   const [estimation, setEstimation] = useState("");
   const [member, setMember] = useState("");
   const [balance, setBalance] = useState("");
@@ -32,9 +36,12 @@ const Journal = () => {
   const dataPerPage = 10;
 
   // Merging estimations and journals
-  const mergedData = journals
-    ? [...journals.estimations, ...journals.journals]
-    : [];
+  const mergedData =
+    me?.role === "admin" && journals?.estimations && journals?.journals
+      ? [...journals.estimations, ...journals.journals]
+      : journals?.journals
+      ? [...journals.journals]
+      : [];
 
   // Pagination logic
   const pageCount = Math.ceil(mergedData.length / dataPerPage);
@@ -158,12 +165,14 @@ const Journal = () => {
         <>
           <div className='w-full flex justify-center'>
             <div className='w-full h-10 flex items-center justify-end'>
-              <button
-                className='btn btn-outline btn-info btn-sm text-white font-bold capitalize'
-                onClick={handleAddClick}
-              >
-                Tambah Jurnal
-              </button>
+              {me?.role === "admin" && (
+                <button
+                  className='btn btn-outline btn-info btn-sm text-white font-bold capitalize'
+                  onClick={handleAddClick}
+                >
+                  Tambah Jurnal
+                </button>
+              )}
             </div>
           </div>
           <div className='overflow-x-auto'>
@@ -177,7 +186,7 @@ const Journal = () => {
                   <th>Nama Anggota</th>
                   <th>Debit</th>
                   <th>Kredit</th>
-                  <th>Kelola</th>
+                  {me?.role === "admin" && <th>Kelola</th>}
                 </tr>
               </thead>
               <tbody>
@@ -204,7 +213,7 @@ const Journal = () => {
                         formatNumber(item?.initial_balance)}
                     </td>
                     <td className='h-10'>
-                      {item.estimation_id && (
+                      {me?.role === "admin" && item.estimation_id && (
                         <div className='flex items-center gap-2'>
                           <button
                             className='btn btn-info btn-square btn-sm'
@@ -289,10 +298,10 @@ const Journal = () => {
               onChange={(e) => setBalance(e.target.value)}
             />
             <InputText
-              label='Neraca Awal'
+              label='Nominal'
               name='initial'
               type='text'
-              placeholder={"Masukkan Neraca Awal"}
+              placeholder={"Masukkan Nominal"}
               value={initial}
               onChange={(e) => setInitial(e.target.value)}
             />

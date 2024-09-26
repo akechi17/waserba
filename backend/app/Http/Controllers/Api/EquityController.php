@@ -16,7 +16,12 @@ class EquityController extends Controller
     public function index()
     {
         try {
-            $equities = User::with('equities')->get();
+            $user = auth()->user();
+            if ($user->role === 'admin') {
+                $equities = User::with('equities')->get();
+            } else {
+                $equities = User::where('id', $user->id)->with('equities')->get();
+            }
 
             return response()->json([
                 'message' => 'Equities retrieved successfully',

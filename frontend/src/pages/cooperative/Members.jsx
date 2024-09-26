@@ -19,6 +19,10 @@ const Members = () => {
     const response = await axiosClient.get("/members");
     return response.data.members;
   });
+  const { data: me } = useQuery("me", async () => {
+    const response = await axiosClient.get("/me");
+    return response.data;
+  });
   const [selectedData, setSelectedData] = useState(null);
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -134,6 +138,7 @@ const Members = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", options).replace(/,/g, "");
   };
+  console.log(me);
 
   useEffect(() => {
     if (message || errors) {
@@ -160,12 +165,14 @@ const Members = () => {
         <>
           <div className='w-full flex justify-center'>
             <div className='w-full h-10 flex items-center justify-end'>
-              <button
-                className='btn btn-outline btn-info btn-sm text-white font-bold capitalize'
-                onClick={handleAddClick}
-              >
-                Tambah Member
-              </button>
+              {me?.role === "admin" && (
+                <button
+                  className='btn btn-outline btn-info btn-sm text-white font-bold capitalize'
+                  onClick={handleAddClick}
+                >
+                  Tambah Member
+                </button>
+              )}
             </div>
           </div>
           <div className='overflow-x-auto'>
@@ -180,7 +187,7 @@ const Members = () => {
                   <th>Tanggal Keluar</th>
                   <th>Nomor Telepon</th>
                   <th>Kode Pos</th>
-                  <th>Kelola</th>
+                  {me?.role === "admin" && <th>Kelola</th>}
                 </tr>
               </thead>
               <tbody>
@@ -199,42 +206,44 @@ const Members = () => {
                     </td>
                     <td>+{member.phone}</td>
                     <td>{member?.postcode}</td>
-                    <td>
-                      <div className='flex items-center justify-center gap-2'>
-                        <button
-                          className='btn btn-info btn-square btn-sm'
-                          title='Edit'
-                          onClick={() => handleEditClick(member)}
-                        >
-                          <Icon
-                            icon='bi:pencil-square'
-                            color='#fff'
-                            width='20'
-                          />
-                        </button>
-                        <button
-                          className={`btn ${
-                            member.status === 1 ? "btn-error" : "btn-success"
-                          } btn-square btn-sm`}
-                          title={` ${
-                            member.status === 1 ? "Nonaktifkan" : "Aktifkan"
-                          } `}
-                          onClick={() =>
-                            handleStatusChange(member.id, member.status)
-                          }
-                        >
-                          <Icon
-                            icon={`${
-                              member.status === 1
-                                ? "bi:x-circle-fill"
-                                : "bi:check-circle-fill"
-                            }`}
-                            color='#fff'
-                            width='20'
-                          />
-                        </button>
-                      </div>
-                    </td>
+                    {me?.role === "admin" && (
+                      <td>
+                        <div className='flex items-center justify-center gap-2'>
+                          <button
+                            className='btn btn-info btn-square btn-sm'
+                            title='Edit'
+                            onClick={() => handleEditClick(member)}
+                          >
+                            <Icon
+                              icon='bi:pencil-square'
+                              color='#fff'
+                              width='20'
+                            />
+                          </button>
+                          <button
+                            className={`btn ${
+                              member.status === 1 ? "btn-error" : "btn-success"
+                            } btn-square btn-sm`}
+                            title={` ${
+                              member.status === 1 ? "Nonaktifkan" : "Aktifkan"
+                            } `}
+                            onClick={() =>
+                              handleStatusChange(member.id, member.status)
+                            }
+                          >
+                            <Icon
+                              icon={`${
+                                member.status === 1
+                                  ? "bi:x-circle-fill"
+                                  : "bi:check-circle-fill"
+                              }`}
+                              color='#fff'
+                              width='20'
+                            />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

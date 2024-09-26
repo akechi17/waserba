@@ -3,8 +3,10 @@ import { Link, NavLink } from "react-router-dom";
 import { MdOutlineCancel } from "react-icons/md";
 import { TooltipComponent } from "@syncfusion/ej2-react-popups";
 
-import { links } from "../data/dummy";
+import { links, linkMember } from "../data/dummy";
 import { useStateContext } from "../context/ContextProvider";
+import axiosClient from "../axios-client";
+import { useQuery } from "react-query";
 
 const Sidebar = () => {
   const { currentColor, activeMenu, setActiveMenu, screenSize } =
@@ -15,6 +17,11 @@ const Sidebar = () => {
       setActiveMenu(false);
     }
   };
+
+  const { data: me } = useQuery("me", async () => {
+    const response = await axiosClient.get("/me");
+    return response.data;
+  });
 
   const activeLink =
     "flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg  text-white  text-md m-2";
@@ -31,7 +38,8 @@ const Sidebar = () => {
               onClick={handleCloseSideBar}
               className='items-center gap-3 ml-3 mt-4 flex text-xl font-extrabold tracking-tight dark:text-white text-slate-900'
             >
-              <img src="/images/logo.png" alt="" width='60' /> <span>Waserba</span>
+              <img src='/images/logo.png' alt='' width='60' />{" "}
+              <span>Waserba</span>
             </Link>
             <TooltipComponent content='Menu' position='BottomCenter'>
               <button
@@ -45,29 +53,53 @@ const Sidebar = () => {
             </TooltipComponent>
           </div>
           <div className='mt-10 '>
-            {links.map((item) => (
-              <div key={item.title}>
-                <p className='text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase'>
-                  {item.title}
-                </p>
-                {item.links.map((link) => (
-                  <NavLink
-                    to={`/${link.name.replace(/\s+/g, "-").toLowerCase()}`}
-                    key={link.name}
-                    onClick={handleCloseSideBar}
-                    style={({ isActive }) => ({
-                      backgroundColor: isActive ? currentColor : "",
-                    })}
-                    className={({ isActive }) =>
-                      isActive ? activeLink : normalLink
-                    }
-                  >
-                    {link.icon}
-                    <span className='capitalize '>{link.name}</span>
-                  </NavLink>
+            {me?.role === "admin"
+              ? links.map((item) => (
+                  <div key={item.title}>
+                    <p className='text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase'>
+                      {item.title}
+                    </p>
+                    {item.links.map((link) => (
+                      <NavLink
+                        to={`/${link.name.replace(/\s+/g, "-").toLowerCase()}`}
+                        key={link.name}
+                        onClick={handleCloseSideBar}
+                        style={({ isActive }) => ({
+                          backgroundColor: isActive ? currentColor : "",
+                        })}
+                        className={({ isActive }) =>
+                          isActive ? activeLink : normalLink
+                        }
+                      >
+                        {link.icon}
+                        <span className='capitalize '>{link.name}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                ))
+              : linkMember.map((item) => (
+                  <div key={item.title}>
+                    <p className='text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase'>
+                      {item.title}
+                    </p>
+                    {item.links.map((link) => (
+                      <NavLink
+                        to={`/${link.name.replace(/\s+/g, "-").toLowerCase()}`}
+                        key={link.name}
+                        onClick={handleCloseSideBar}
+                        style={({ isActive }) => ({
+                          backgroundColor: isActive ? currentColor : "",
+                        })}
+                        className={({ isActive }) =>
+                          isActive ? activeLink : normalLink
+                        }
+                      >
+                        {link.icon}
+                        <span className='capitalize '>{link.name}</span>
+                      </NavLink>
+                    ))}
+                  </div>
                 ))}
-              </div>
-            ))}
           </div>
         </>
       )}

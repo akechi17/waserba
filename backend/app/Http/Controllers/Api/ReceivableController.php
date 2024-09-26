@@ -15,7 +15,12 @@ class ReceivableController extends Controller
     public function index()
     {
         try {
-            $receivables = User::with('receivables')->get();
+            $user = auth()->user();
+            if ($user->role === 'admin') {
+                $receivables = User::with('receivables')->get();
+            } else {
+                $receivables = User::where('id', $user->id)->with('receivables')->get();
+            }
 
             return response()->json([
                 'message' => 'Receivables retrieved successfully',

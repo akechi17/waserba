@@ -12,6 +12,7 @@ export { default as ChartsHeader } from './ChartsHeader';
 export { default as AuthHeader } from './AuthHeader';
 export { default as Header } from './Header';
 export { default as Alert } from './Alert';
+export { default as EarningData } from './EarningData';
 export { default as GuestLayout } from './layouts/GuestLayout';
 export { default as DefaultLayout } from './layouts/DefaultLayout';
 export { default as LoginInput } from './form/LoginInput';

@@ -198,43 +198,6 @@ const RemainingBusiness = () => {
           </div>
         </>
       )}
-      <dialog id='add' className='modal'>
-        <div className='modal-box bg-light-gray dark:bg-secondary-dark-bg'>
-          <div className='flex justify-between items-center'>
-            <h3 className='font-bold text-lg text-gray-700 dark:text-gray-200'>
-              Tambah Member
-            </h3>
-            <form method='dialog'>
-              <button className='text-2xl p-3 hover:drop-shadow-xl hover:bg-light-gray rounded-full'>
-                <Icon icon='ic:round-close' color='#99abb4' />
-              </button>
-            </form>
-          </div>
-          <form onSubmit={onSubmit}>
-            <InputText
-              label='Nama Lengkap'
-              name='name'
-              type='text'
-              innerRef={nameRef}
-              placeholder={"Masukkan Nama Lengkap"}
-            />
-            <button
-              type='submit'
-              onClick={(e) => {
-                e.stopPropagation();
-                document.getElementById("notifications").close();
-              }}
-              className='text-white p-2 hover:drop-shadow-xl rounded-md capitalize'
-              style={{ backgroundColor: currentColor }}
-            >
-              submit
-            </button>
-          </form>
-        </div>
-        <form method='dialog' className='modal-backdrop'>
-          <button>close</button>
-        </form>
-      </dialog>
       {message && <Alert text={message} />}
       {error && <Alert text={error} error />}
     </div>

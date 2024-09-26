@@ -13,6 +13,10 @@ const Estimation = () => {
     const response = await axiosClient.get("/estimations");
     return response.data.estimations;
   });
+  const { data: me } = useQuery("me", async () => {
+    const response = await axiosClient.get("/me");
+    return response.data;
+  });
   const [number, setNumber] = useState("");
   const [name, setName] = useState("");
   const [group, setGroup] = useState("");
@@ -137,12 +141,14 @@ const Estimation = () => {
         <>
           <div className='w-full flex justify-center'>
             <div className='w-full h-10 flex items-center justify-end'>
-              <button
-                className='btn btn-outline btn-info btn-sm text-white font-bold capitalize'
-                onClick={handleAddClick}
-              >
-                Tambah Perkiraan
-              </button>
+              {me?.role === "admin" && (
+                <button
+                  className='btn btn-outline btn-info btn-sm text-white font-bold capitalize'
+                  onClick={handleAddClick}
+                >
+                  Tambah Perkiraan
+                </button>
+              )}
             </div>
           </div>
           <div className='overflow-x-auto'>
@@ -154,7 +160,7 @@ const Estimation = () => {
                   <th>Golongan Perkiraan</th>
                   <th>Saldo Normal</th>
                   <th>Neraca Awal</th>
-                  <th>Kelola</th>
+                  {me?.role === "admin" && <th>Kelola</th>}
                 </tr>
               </thead>
               <tbody>
@@ -168,28 +174,30 @@ const Estimation = () => {
                     <td>{estimation?.group}</td>
                     <td>{estimation?.balance}</td>
                     <td>{formatNumber(estimation?.initial_balance)}</td>
-                    <td>
-                      <div className='flex items-center gap-2'>
-                        <button
-                          className='btn btn-info btn-square btn-sm'
-                          title='Edit'
-                          onClick={() => handleEditClick(estimation)}
-                        >
-                          <Icon
-                            icon='bi:pencil-square'
-                            color='#fff'
-                            width='20'
-                          />
-                        </button>
-                        <button
-                          className='btn btn-error btn-square btn-sm'
-                          title='Hapus'
-                          onClick={() => onDelete(estimation.id)}
-                        >
-                          <Icon icon='bi:trash' color='#fff' width='20' />
-                        </button>
-                      </div>
-                    </td>
+                    {me?.role === "admin" && (
+                      <td>
+                        <div className='flex items-center gap-2'>
+                          <button
+                            className='btn btn-info btn-square btn-sm'
+                            title='Edit'
+                            onClick={() => handleEditClick(estimation)}
+                          >
+                            <Icon
+                              icon='bi:pencil-square'
+                              color='#fff'
+                              width='20'
+                            />
+                          </button>
+                          <button
+                            className='btn btn-error btn-square btn-sm'
+                            title='Hapus'
+                            onClick={() => onDelete(estimation.id)}
+                          >
+                            <Icon icon='bi:trash' color='#fff' width='20' />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

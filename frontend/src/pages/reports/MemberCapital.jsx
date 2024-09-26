@@ -38,15 +38,15 @@ const MemberCapital = () => {
         totals.tab_lain += member.tab_lain || 0;
 
         totals.jumlah_setoran_menentukan_kepemilikan +=
-          (member.sim_pok || 0) +
-          (member.sim_waj || 0) +
-          (member.sim_wakhusus || 0);
+          Number(member.sim_pok || 0) +
+          Number(member.sim_waj || 0) +
+          Number(member.sim_wakhusus || 0);
 
         totals.jumlah_setoran_tidak_menentukan_kepemilikan +=
-          (member.sim_suk || 0) +
-          (member.taqurban || 0) +
-          (member.tab_lain || 0) +
-          (member.sim_wakhusus || 0);
+          Number(member.sim_suk || 0) +
+          Number(member.taqurban || 0) +
+          Number(member.tab_lain || 0) +
+          Number(member.sim_wakhusus || 0);
 
         return totals;
       },

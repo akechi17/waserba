@@ -138,7 +138,6 @@ const Members = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", options).replace(/,/g, "");
   };
-  console.log(me);
 
   useEffect(() => {
     if (message || errors) {
@@ -222,10 +221,10 @@ const Members = () => {
                           </button>
                           <button
                             className={`btn ${
-                              member.status === 1 ? "btn-error" : "btn-success"
+                              member.status == 1 ? "btn-error" : "btn-success"
                             } btn-square btn-sm`}
                             title={` ${
-                              member.status === 1 ? "Nonaktifkan" : "Aktifkan"
+                              member.status == 1 ? "Nonaktifkan" : "Aktifkan"
                             } `}
                             onClick={() =>
                               handleStatusChange(member.id, member.status)
@@ -233,7 +232,7 @@ const Members = () => {
                           >
                             <Icon
                               icon={`${
-                                member.status === 1
+                                member.status == 1
                                   ? "bi:x-circle-fill"
                                   : "bi:check-circle-fill"
                               }`}

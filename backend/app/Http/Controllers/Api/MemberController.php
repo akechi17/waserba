@@ -96,4 +96,19 @@ class MemberController extends Controller
         }
     }
 
+    public function uploadAvatar(Request $request)
+    {
+        $userId = $request->user()->id;
+        $user = User::find($userId);
+        $file = $request->file('avatar');
+        $filename = $file->getClientOriginalName();
+        $path = $file->move(storage_path('app/public/avatars'), $filename);
+        $user->avatar = 'storage/avatars/' . $filename;
+        $user->save();
+        return response()->json([
+            'message' => 'Avatar berhasil diunggah',
+            'avatar' => $user->avatar
+        ]);
+    }
+
 }

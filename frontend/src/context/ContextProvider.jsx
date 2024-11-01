@@ -47,6 +47,12 @@ export const ContextProvider = ({ children }) => {
     return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
+  const formatDate = (dateString) => {
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", options).replace(/,/g, "");
+  };
+
   return (
     // eslint-disable-next-line react/jsx-no-constructed-context-values
     <StateContext.Provider
@@ -69,7 +75,8 @@ export const ContextProvider = ({ children }) => {
         setColor,
         themeSettings,
         setThemeSettings,
-        formatNumber
+        formatNumber,
+        formatDate
       }}
     >
       {children}

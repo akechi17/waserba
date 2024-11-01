@@ -11,8 +11,6 @@ const Receivables = () => {
     const response = await axiosClient.get("/receivables");
     return response.data.receivables;
   });
-  const [message, setMessage] = useState(null);
-  const [errors, setErrors] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const dataPerPage = 10;
   const pageCount = Math.ceil(
@@ -37,16 +35,6 @@ const Receivables = () => {
     currentPage * dataPerPage,
     (currentPage + 1) * dataPerPage
   );
-
-  useEffect(() => {
-    if (message || errors) {
-      const timeoutId = setTimeout(() => {
-        setMessage(null);
-        setErrors(null);
-      }, 1500);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [message, errors]);
 
   return (
     <div
@@ -143,18 +131,6 @@ const Receivables = () => {
           </div>
         </>
       )}
-      {message && <Alert text={message} />}
-      {errors &&
-        Object.keys(errors).map((key, index) =>
-          errors[key].map((error, idx) => (
-            <Alert
-              key={`${key}-${idx}`}
-              text={error}
-              error
-              index={index + idx}
-            />
-          ))
-        )}
     </div>
   );
 };

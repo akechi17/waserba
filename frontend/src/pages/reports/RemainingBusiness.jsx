@@ -1,13 +1,15 @@
-import React, { createRef, useEffect, useState } from "react";
-import { Alert, Header, InputText, TelephoneInput } from "../../components";
-import ReactPaginate from "react-paginate";
+import React, { useEffect, useState } from "react";
+import { Alert, Header, InputText } from "../../components";
 import axiosClient from "../../axios-client";
 import { Icon } from "@iconify/react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useStateContext } from "../../context/ContextProvider";
-import { Link } from "react-router-dom";
+import DataTable from "datatables.net-react";
+import DT from "datatables.net-dt";
+import "datatables.net-responsive-dt";
 
 const RemainingBusiness = () => {
+  const queryClient = useQueryClient();
   const { activeMenu, currentColor, formatNumber } = useStateContext();
   const { data: pastProfits, isLoading } = useQuery("pastProfits", async () => {
     const response = await axiosClient.get("/past-profits");
@@ -18,31 +20,39 @@ const RemainingBusiness = () => {
     return response.data.policy;
   });
 
-  const nameRef = createRef();
+  const [selectedData, setSelectedData] = useState(null);
+  const [modal, setModal] = useState("");
+  const [transaksi, setTransaksi] = useState("");
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const dataPerPage = 10;
-  const pageCount = Math.ceil(
-    pastProfits?.length ? pastProfits.length / dataPerPage : 5 / dataPerPage
-  );
-  const handlePageClick = ({ selected }) => {
-    setCurrentPage(selected);
-  };
-  const slicedData = pastProfits?.slice(
-    currentPage * dataPerPage,
-    (currentPage + 1) * dataPerPage
-  );
 
   const onSubmit = (ev) => {
     ev.preventDefault();
 
     const payload = {
-      name: nameRef.current.value,
-      description: descriptionRef.current.value,
+      modal,
+      transaksi
     };
-    updateJournalMutation.mutate(payload);
-    document.getElementById("add").close();
+    axiosClient
+      .put(`/past-profits/${selectedData}`, payload)
+      .then(({ data }) => {
+        queryClient.invalidateQueries("pastProfits");
+        setMessage(data.message);
+        setSelectedData(null);
+      })
+      .catch((err) => {
+        const response = err.response;
+        if (response && response.status === 422) {
+          setError(response.data.errors);
+        }
+      });
+  };
+
+  const handleEditClick = (data) => {
+    setSelectedData(data.id);
+    setModal(data.modal || "");
+    setTransaksi(data.transaksi || "");
+    document.getElementById("form").showModal();
   };
 
   useEffect(() => {
@@ -53,6 +63,8 @@ const RemainingBusiness = () => {
       return () => clearTimeout(timeoutId);
     }
   }, [message]);
+
+  DataTable.use(DT);
 
   return (
     <div
@@ -68,11 +80,13 @@ const RemainingBusiness = () => {
       ) : (
         <>
           <div className='w-full flex justify-center'>
-            <div className='w-full h-10 flex items-center justify-end'>
-            </div>
+            <div className='w-full h-10 flex items-center justify-end'></div>
           </div>
           <div className='overflow-x-auto'>
-            <table className='table table-xs text-center'>
+            <DataTable
+              options={{ responsive: true }}
+              className='table table-xs text-center'
+            >
               <thead>
                 <tr className='border-b-gray-700 dark:border-b-aagray-200 uppercase text-gray-700 dark:text-gray-200'>
                   <th rowSpan={2}>Nomor Anggota</th>
@@ -95,7 +109,7 @@ const RemainingBusiness = () => {
                 </tr>
               </thead>
               <tbody>
-                {slicedData?.map((data) => (
+                {pastProfits?.map((data) => (
                   <tr
                     className='border-b-gray-700 dark:border-b-gray-200 text-gray-700 dark:text-gray-200'
                     key={data.id}
@@ -144,60 +158,74 @@ const RemainingBusiness = () => {
                     </td>
                     <td>
                       <div className='flex items-center justify-center gap-2'>
-                        <Link
+                        <button
                           className='btn btn-info btn-square btn-sm'
                           title='Edit'
+                          onClick={() => handleEditClick(data)}
                         >
                           <Icon
                             icon='bi:pencil-square'
                             color='#fff'
                             width='20'
                           />
-                        </Link>
+                        </button>
                       </div>
                     </td>
                   </tr>
                 ))}
-                <tr className='border-b-gray-700 dark:border-b-gray-200 text-gray-700 dark:text-gray-200'>
-                  <td colSpan={2}>Total</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
               </tbody>
-            </table>
-          </div>
-          <div className='flex flex-col justify-between'>
-            <div className='flex flex-col items-start justify-center text-gray-700 dark:text-gray-200'>
-              <p>Total data: {pastProfits?.length}</p>
-              <p>
-                Page: {currentPage + 1} of {pageCount}
-              </p>
-            </div>
-            <ReactPaginate
-              previousLabel={"<"}
-              nextLabel={">"}
-              pageCount={pageCount}
-              onPageChange={handlePageClick}
-              containerClassName={"pagination"}
-              previousLinkClassName={"pagination__link"}
-              nextLinkClassName={"pagination__link"}
-              disabledClassName={"pagination__link--disabled"}
-              pageLinkClassName={"pagination__link"}
-              activeLinkClassName={"pagination__link--active"}
-              breakClassName={"pagination__break"}
-              marginPagesDisplayed={1}
-              pageRangeDisplayed={2}
-            />
+            </DataTable>
           </div>
         </>
       )}
+      <dialog id='form' className='modal'>
+        <div className='modal-box bg-light-gray dark:bg-secondary-dark-bg'>
+          <div className='flex justify-between items-center'>
+            <h3 className='font-bold text-lg text-gray-700 dark:text-gray-200'>
+              Edit Laba Yang Lalu
+            </h3>
+            <form method='dialog'>
+              <button className='text-2xl p-3 hover:drop-shadow-xl hover:bg-light-gray rounded-full'>
+                <Icon icon='ic:round-close' color='#99abb4' />
+              </button>
+            </form>
+          </div>
+          <form onSubmit={onSubmit}>
+            <InputText
+              label='Modal'
+              name='modal'
+              type='text'
+              value={modal}
+              onChange={(e) => setModal(e.target.value)}
+              placeholder={"Masukkan Modal"}
+            />
+            <InputText
+              label='Transaksi'
+              name='transaksi'
+              type='text'
+              value={transaksi}
+              onChange={(e) => setTransaksi(e.target.value)}
+              placeholder={"Masukkan Transaksi"}
+            />
+            <div className='modal-action'>
+              <button
+                type='submit'
+                onClick={(e) => {
+                  e.stopPropagation();
+                  document.getElementById("form").close();
+                }}
+                className='text-white p-2 hover:drop-shadow-xl rounded-md capitalize'
+                style={{ backgroundColor: currentColor }}
+              >
+                submit
+              </button>
+            </div>
+          </form>
+        </div>
+        <form method='dialog' className='modal-backdrop'>
+          <button>Close</button>
+        </form>
+      </dialog>
       {message && <Alert text={message} />}
       {error && <Alert text={error} error />}
     </div>

@@ -17,16 +17,29 @@ class About extends Model
         'vice_president',
         'secretary',
         'supervisor',
+        'supervisor2',
+        'supervisor3',
         'treasurer',
         'syariah_supervisor',
+        'syariah_supervisor2',
+        'syariah_supervisor3',
         'address',
         'city',
         'province',
         'phone',
         'accounting_period',
         'accounting_year',
-        'last_year',
         'first_accounting_date',
-        'last_accounting_date'
+        'last_accounting_date',
+        'pdf'
     ];
+
+    protected $appends = [
+        'pdf_url',
+    ];
+
+    public function getPdfUrlAttribute()
+    {
+        return $this->resume ? url($this->resume) : null;
+    }
 }

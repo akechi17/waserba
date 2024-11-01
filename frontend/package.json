@@ -16,7 +16,11 @@
     "axios": "^1.7.3",
     "chart": "^0.1.2",
     "chart.js": "^4.4.4",
+    "datatables.net-dt": "^2.1.8",
+    "datatables.net-react": "^1.0.0",
+    "datatables.net-responsive-dt": "^3.0.3",
     "iconify": "^1.4.0",
+    "jquery": "^3.7.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
@@ -26,7 +30,9 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^6.26.0",
     "react-select": "^5.8.0",
-    "swiper": "^11.1.3"
+    "react-trix": "^0.10.2",
+    "swiper": "^11.1.3",
+    "trix": "^2.1.7"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

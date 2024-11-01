@@ -20,6 +20,21 @@
   z-index: 10000;
 }
 
+.dt-input {
+  background-color: aliceblue;
+}
+.dt-info {
+  color: black;
+}
+.dt-paging-button {
+  margin: 0 5px;
+  font-size: 20px;
+  color: black;
+}
+.dt-paging-button.next, .dt-paging-button.previous, .dt-paging-button.first, .dt-paging-button.last {
+  font-size: 30px;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -183,6 +198,56 @@ body{
   font-size: 1rem;
   color: #555;
   font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.news-card {
+  overflow: hidden;
+  border-radius: 12px;
+  min-height: 330px;
+  max-height: 330px;
+}
+.news-card:hover .news-image img {
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.news-card:hover {
+  box-shadow: 5px 5px 5px rgba(33, 33, 33, 0.356);
+  transform: translateY(-15px);
+  cursor: pointer;
+}
+.news-image {
+  width: 100%;
+  height: 220px;
+  position: relative;
+  overflow: hidden;
+}
+.news-image img {
+  position: absolute;
+  height: 125%;
+  width: initial;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: 0.5s;
+}
+.one-line {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.two-line {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.three-line {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .swiper-slide {

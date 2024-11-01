@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Equity;
 use App\Models\Receivable;
+use App\Models\PastProfit;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -46,24 +47,32 @@ class AuthController extends Controller
                 'role' => $request->role
             ]);
 
-            $prefix = $request->role === 'notmember' ? 'B-' : 'A-';
+            $prefix = $request->role === 'member' ? 'A-' : 'B-';
             $lastId = User::where('id', 'like', $prefix.'%')
                             ->orderBy('id', 'desc')
                             ->value('id');
             
             if ($lastId) {
-                $number = (int)substr($lastId, -3);
+                $number = (int)substr($lastId, -4);
             } else {
                 $number = 1;
             }
 
-            Receivable::create([
-                'user_id' => $prefix . str_pad($number, 3, '0', STR_PAD_LEFT)
-            ]);
+            if($request->role !== 'admin') {
+                Receivable::create([
+                    'user_id' => $prefix . str_pad($number, 4, '0', STR_PAD_LEFT)
+                ]);
 
-            Equity::create([
-                'user_id' => $prefix . str_pad($number, 3, '0', STR_PAD_LEFT)
-            ]);
+                Equity::create([
+                    'user_id' => $prefix . str_pad($number, 4, '0', STR_PAD_LEFT)
+                ]);
+            }
+
+            if($request->role === 'member') {
+                PastProfit::create([
+                    'user_id' => $prefix . str_pad($number, 4, '0', STR_PAD_LEFT)
+                ]);
+            }
 
             DB::commit();
 

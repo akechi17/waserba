@@ -6,15 +6,17 @@ import {
   Select,
   TelephoneInput,
 } from "../../components";
-import ReactPaginate from "react-paginate";
 import axiosClient from "../../axios-client";
 import { Icon } from "@iconify/react";
 import { useQuery, useQueryClient } from "react-query";
 import { useStateContext } from "../../context/ContextProvider";
+import DataTable from "datatables.net-react";
+import DT from "datatables.net-dt";
+import "datatables.net-responsive-dt";
 
 const Members = () => {
   const queryClient = useQueryClient();
-  const { activeMenu, currentColor } = useStateContext();
+  const { activeMenu, currentColor, formatDate } = useStateContext();
   const { data: members, isLoading } = useQuery("members", async () => {
     const response = await axiosClient.get("/members");
     return response.data.members;
@@ -29,26 +31,14 @@ const Members = () => {
   const [role, setRole] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+  const [created, setCreated] = useState("");
+  const [deleted, setDeleted] = useState("");
   const [postCode, setPostCode] = useState("");
   const passwordRef = createRef();
   const passwordConfirmationRef = createRef();
   const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState(null);
   const options = ["admin", "member", "notmember"];
-  const [currentPage, setCurrentPage] = useState(0);
-  const dataPerPage = 10;
-  const pageCount = Math.ceil(
-    members?.length ? members.length / dataPerPage : 5 / dataPerPage
-  );
-
-  const handlePageClick = ({ selected }) => {
-    setCurrentPage(selected);
-  };
-
-  const slicedData = members?.slice(
-    currentPage * dataPerPage,
-    (currentPage + 1) * dataPerPage
-  );
 
   const onSubmit = (ev) => {
     ev.preventDefault();
@@ -59,6 +49,8 @@ const Members = () => {
       role: role,
       address: address,
       city: city,
+      created_at: created,
+      deleted_at: deleted,
       postcode: postCode,
       password: passwordRef.current.value,
       password_confirmation: passwordConfirmationRef.current.value,
@@ -104,6 +96,8 @@ const Members = () => {
     setAddress(member.address || "");
     setCity(member.city || "");
     setPostCode(member.postcode || "");
+    setCreated(member.created_at || "");
+    setDeleted(member.deleted_at || "");
     document.getElementById("form").showModal();
   };
 
@@ -115,6 +109,8 @@ const Members = () => {
     setAddress("");
     setCity("");
     setPostCode("");
+    setCreated("");
+    setDeleted("");
     document.getElementById("form").showModal();
   };
 
@@ -128,15 +124,9 @@ const Members = () => {
       .catch((err) => {
         const response = err.response;
         if (response) {
-          setErrors(response.data.message);
+          setErrors(response.data.errors);
         }
       });
-  };
-
-  const formatDate = (dateString) => {
-    const options = { day: "2-digit", month: "short", year: "numeric" };
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", options).replace(/,/g, "");
   };
 
   useEffect(() => {
@@ -148,6 +138,8 @@ const Members = () => {
       return () => clearTimeout(timeoutId);
     }
   }, [message, errors]);
+
+  DataTable.use(DT);
 
   return (
     <div
@@ -175,7 +167,10 @@ const Members = () => {
             </div>
           </div>
           <div className='overflow-x-auto'>
-            <table className='table table-xs'>
+            <DataTable
+              options={{ responsive: true }}
+              className='table table-xs'
+            >
               <thead>
                 <tr className='border-b-gray-700 dark:border-b-gray-200 uppercase text-gray-700 dark:text-gray-200'>
                   <th>No. Daftar</th>
@@ -190,7 +185,7 @@ const Members = () => {
                 </tr>
               </thead>
               <tbody>
-                {slicedData?.map((member) => (
+                {members?.map((member) => (
                   <tr
                     className='border-b-gray-700 dark:border-b-gray-200 text-gray-700 dark:text-gray-200'
                     key={member.id}
@@ -246,30 +241,7 @@ const Members = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
-          <div className='flex flex-col justify-between'>
-            <div className='flex flex-col items-start justify-center text-gray-700 dark:text-gray-200'>
-              <p>Total Anggota: {members?.length}</p>
-              <p>
-                Page: {currentPage + 1} of {pageCount}
-              </p>
-            </div>
-            <ReactPaginate
-              previousLabel={"<"}
-              nextLabel={">"}
-              pageCount={pageCount}
-              onPageChange={handlePageClick}
-              containerClassName={"pagination"}
-              previousLinkClassName={"pagination__link"}
-              nextLinkClassName={"pagination__link"}
-              disabledClassName={"pagination__link--disabled"}
-              pageLinkClassName={"pagination__link"}
-              activeLinkClassName={"pagination__link--active"}
-              breakClassName={"pagination__break"}
-              marginPagesDisplayed={1}
-              pageRangeDisplayed={2}
-            />
+            </DataTable>
           </div>
         </>
       )}
@@ -317,6 +289,27 @@ const Members = () => {
               onChange={(e) => setCity(e.target.value)}
               placeholder={"Masukkan Kabupaten / Kota"}
             />
+            {selectedData && (
+              <>
+                <InputText
+                  label='Tanggal Masuk'
+                  name='created_at'
+                  type='date'
+                  value={created}
+                  onChange={(e) => setCreated(e.target.value)}
+                  placeholder={"Masukkan Tanggal Masuk"}
+                />
+                <InputText
+                  label='Tanggal Keluar'
+                  name='deleted_at'
+                  type='date'
+                  value={deleted}
+                  onChange={(e) => setDeleted(e.target.value)}
+                  placeholder={"Masukkan Tanggal Keluar"}
+                />
+              </>
+            )}
+
             <InputText
               label='Kode Pos'
               name='postcode'

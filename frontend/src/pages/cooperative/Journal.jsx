@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Alert, Header, InputText, Select, Select2 } from "../../components";
-import ReactPaginate from "react-paginate";
 import axiosClient from "../../axios-client";
 import { Icon } from "@iconify/react";
 import { useQuery, useQueryClient } from "react-query";
 import { useStateContext } from "../../context/ContextProvider";
+import DataTable from "datatables.net-react";
+import DT from "datatables.net-dt";
+import "datatables.net-responsive-dt";
 
 const Journal = () => {
   const queryClient = useQueryClient();
-  const { activeMenu, currentColor, formatNumber } = useStateContext();
+  const { activeMenu, currentColor, formatNumber, formatDate } =
+    useStateContext();
   const { data: journals, isLoading } = useQuery("journals", async () => {
     const response = await axiosClient.get("/journals");
     return response.data;
@@ -25,6 +28,7 @@ const Journal = () => {
     const response = await axiosClient.get("/me");
     return response.data;
   });
+  const [created, setCreated] = useState("");
   const [estimation, setEstimation] = useState("");
   const [member, setMember] = useState("");
   const [balance, setBalance] = useState("");
@@ -32,10 +36,7 @@ const Journal = () => {
   const [selectedData, setSelectedData] = useState(null);
   const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const dataPerPage = 10;
 
-  // Merging estimations and journals
   const mergedData =
     me?.role === "admin" && journals?.estimations && journals?.journals
       ? [...journals.estimations, ...journals.journals]
@@ -43,20 +44,25 @@ const Journal = () => {
       ? [...journals.journals]
       : [];
 
-  // Pagination logic
-  const pageCount = Math.ceil(mergedData.length / dataPerPage);
-  const handlePageClick = ({ selected }) => {
-    setCurrentPage(selected);
-  };
-  const slicedData = mergedData.slice(
-    currentPage * dataPerPage,
-    (currentPage + 1) * dataPerPage
-  );
+  const debitSum = journals?.journals.reduce((sum, data) => {
+    if (data.balance === "debit") {
+      return sum + Number(data.initial_balance || 0);
+    }
+    return sum;
+  }, 0);
+
+  const kreditSum = journals?.journals.reduce((sum, data) => {
+    if (data.balance === "kredit") {
+      return sum + Number(data.initial_balance || 0);
+    }
+    return sum;
+  }, 0);
 
   const onSubmit = (ev) => {
     ev.preventDefault();
 
     const payload = {
+      created_at: created,
       estimation_id: estimation,
       user_id: member,
       balance: balance,
@@ -86,7 +92,7 @@ const Journal = () => {
         })
         .catch((err) => {
           const response = err.response;
-          if (response) {
+          if (response && response.data && response.data.errors) {
             setErrors(response.data.errors);
           }
         });
@@ -109,6 +115,7 @@ const Journal = () => {
   };
 
   const handleEditClick = (estimation) => {
+    setCreated(estimation.created_at || "");
     setSelectedData(estimation.id);
     setEstimation(estimation.estimation_id || "");
     setMember(estimation.user_id || "");
@@ -118,6 +125,7 @@ const Journal = () => {
   };
 
   const handleAddClick = () => {
+    setCreated("");
     setSelectedData(null);
     setEstimation("");
     setMember("");
@@ -139,7 +147,7 @@ const Journal = () => {
   const estimationOptions = estimations
     ? estimations.map((e) => ({
         value: e.id,
-        label: e.name,
+        label: e.id + " | " + e.name,
       }))
     : [];
 
@@ -150,13 +158,46 @@ const Journal = () => {
       }))
     : [];
 
+  DataTable.use(DT);
+
   return (
     <div
       className={`m-2 mt-24 md:m-6 p-8 md:p-8 bg-white dark:bg-secondary-dark-bg rounded-3xl transition duration-300 ${
         activeMenu && "md:max-w-5xl"
       }`}
     >
-      <Header category='Jurnal' title='Umum' />
+      <div className='flex justify-between'>
+        <Header category='Jurnal' title='Umum' />
+        <div className='flex flex-col justify-center items-start text-sm md:text-lg font-bold gap-3'>
+          <div className='flex items-center'>
+            <h3 className='w-24 md:w-32'>Total Debit : </h3>
+            <h1
+              style={{ backgroundColor: currentColor }}
+              className='p-2 rounded-xl text-black'
+            >
+              {isLoading ? "Loading..." : formatNumber(debitSum)}
+            </h1>
+          </div>
+          <div className='flex items-center'>
+            <h3 className='w-24 md:w-32'>Total Kredit : </h3>
+            <h1
+              style={{ backgroundColor: currentColor }}
+              className='p-2 rounded-xl text-black'
+            >
+              {isLoading ? "Loading..." : formatNumber(kreditSum)}
+            </h1>
+          </div>
+          <div className='flex items-center'>
+            <h3 className='w-24 md:w-32'>Selisih : </h3>
+            <h1
+              style={{ backgroundColor: currentColor }}
+              className='p-2 rounded-xl text-black'
+            >
+              {isLoading ? "Loading..." : formatNumber(debitSum - kreditSum)}
+            </h1>
+          </div>
+        </div>
+      </div>
       {isLoading ? (
         <div className='flex items-center justify-center h-72'>
           <span className='loading loading-spinner loading-lg'></span>
@@ -176,9 +217,13 @@ const Journal = () => {
             </div>
           </div>
           <div className='overflow-x-auto'>
-            <table className='table table-xs'>
+            <DataTable
+              options={{ responsive: true }}
+              className='table table-xs'
+            >
               <thead>
                 <tr className='border-b-gray-700 dark:border-b-gray-200 uppercase text-gray-700 dark:text-gray-200'>
+                  <th>Tanggal Dibuat</th>
                   <th>Kode Pelanggan</th>
                   <th>No. Jurnal</th>
                   <th>Nama Jurnal</th>
@@ -190,11 +235,12 @@ const Journal = () => {
                 </tr>
               </thead>
               <tbody>
-                {slicedData.map((item) => (
+                {mergedData.map((item) => (
                   <tr
                     className='border-b-gray-700 dark:border-b-gray-200 text-gray-700 dark:text-gray-200'
                     key={item.id}
                   >
+                    <td>{formatDate(item?.created_at)}</td>
                     <td>
                       {item.estimation
                         ? `${item.estimation?.id}-${item.user?.id || ""}`
@@ -239,30 +285,7 @@ const Journal = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
-          <div className='flex flex-col justify-between'>
-            <div className='flex flex-col items-start justify-center text-gray-700 dark:text-gray-200'>
-              <p>Total Jurnal: {mergedData.length}</p>
-              <p>
-                Page: {currentPage + 1} of {pageCount}
-              </p>
-            </div>
-            <ReactPaginate
-              previousLabel={"<"}
-              nextLabel={">"}
-              pageCount={pageCount}
-              onPageChange={handlePageClick}
-              containerClassName={"pagination"}
-              previousLinkClassName={"pagination__link"}
-              nextLinkClassName={"pagination__link"}
-              disabledClassName={"pagination__link--disabled"}
-              pageLinkClassName={"pagination__link"}
-              activeLinkClassName={"pagination__link--active"}
-              breakClassName={"pagination__break"}
-              marginPagesDisplayed={1}
-              pageRangeDisplayed={2}
-            />
+            </DataTable>
           </div>
         </>
       )}
@@ -279,6 +302,14 @@ const Journal = () => {
             </form>
           </div>
           <form onSubmit={onSubmit}>
+            <InputText
+              label='Tanggal Dibuat'
+              name='created_at'
+              type='date'
+              value={created}
+              onChange={(e) => setCreated(e.target.value)}
+              placeholder={"Masukkan Tanggal Dibuat"}
+            />
             <Select2
               label='Nama Perkiraan'
               options={estimationOptions}

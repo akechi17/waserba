@@ -33,7 +33,7 @@ const Login = () => {
           (response && response.status === 401) ||
           (response && response.status === 422)
         ) {
-          setErrors(response.data.message);
+          setErrors(response.data.errors);
         }
       });
   };

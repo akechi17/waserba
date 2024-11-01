@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('supervisor3')->nullable();
             $table->string('treasurer')->nullable();
             $table->string('syariah_supervisor')->nullable();
+            $table->string('syariah_supervisor2')->nullable();
+            $table->string('syariah_supervisor3')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('province')->nullable();
@@ -32,6 +34,7 @@ return new class extends Migration
             $table->string('accounting_year')->nullable();
             $table->date('first_accounting_date')->nullable();
             $table->date('last_accounting_date')->nullable();
+            $table->string('pdf')->nullable();
             $table->timestamps();
         });
     }

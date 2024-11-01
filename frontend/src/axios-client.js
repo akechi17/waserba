@@ -18,7 +18,7 @@ axiosClient.interceptors.response.use(
     const { response } = error;
     if (response.status === 401) {
       localStorage.removeItem("ACCESS_TOKEN");
-      // window.location.href = "/account/auth/login";
+      window.location.href = "/account/auth/login";
     } else if (response.status === 404) {
       // Handle 404 errors
     }

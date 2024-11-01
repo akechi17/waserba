@@ -17,31 +17,42 @@ class JournalController extends Controller
     public function index()
     {
         try {
-            $user = auth()->user();
-            if ($user->role === 'admin') {
-                $estimations = Estimation::where('id', 'like', '1-%')
-                  ->orWhere('id', 'like', '2-%')
-                  ->orWhere('id', 'like', '3-%')->get();
-                $journals = Journal::with('user', 'estimation')->get();
+            $estimations = Estimation::where('id', 'like', '1-%')
+                ->orWhere('id', 'like', '2-%')
+                ->orWhere('id', 'like', '3-%')->get();
+            $journals = Journal::with('user', 'estimation')->get();
 
-                return response()->json([
-                    'message' => 'Journals retrieved successfully',
-                    'estimations' => $estimations,
-                    'journals' => $journals
-                ], 200);
-            } else {
-                $journals = Journal::where('user_id', $user->id)->with('user', 'estimation')->get();
-                return response()->json([
-                    'message' => 'Journals retrieved successfully',
-                    'journals' => $journals
-                ], 200);
-            }
+            return response()->json([
+                'message' => 'Journals retrieved successfully',
+                'estimations' => $estimations,
+                'journals' => $journals
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error while getting journals',
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function filter($estimation)
+    {
+        try {
+            $journals = Journal::with('user', 'estimation')
+            ->where('estimation_id', $estimation)
+            ->where('id', '>', 17)
+            ->get();
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Data jurnal tidak ditemukan',
+                'journals' => [],
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Data jurnal ditemukan',
+            'journals' => $journals,
+        ], 200);
     }
 
     /**
@@ -59,6 +70,7 @@ class JournalController extends Controller
     {
         try {
             $request->validate([
+                'created_at' => 'nullable',
                 'estimation_id' => 'required|string',
                 'user_id' => 'nullable|string',
                 'balance' => 'required',
@@ -74,6 +86,7 @@ class JournalController extends Controller
         }
 
         Journal::create([
+            'created_at' => $request->created_at,
             'estimation_id' => $request->estimation_id,
             'user_id' => $request->user_id,
             'balance' => $request->balance,
@@ -107,6 +120,7 @@ class JournalController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'created_at' => 'required',
             'estimation_id' => 'required|string',
             'user_id' => 'nullable|string',
             'balance' => 'required',

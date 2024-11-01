@@ -67,9 +67,30 @@ class PastProfitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PastProfit $pastProfit)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'modal' => 'nullable|integer',
+            'transaksi' => 'nullable|integer'
+        ]);
+
+        try {
+            $pastProfit = PastProfit::findOrFail($id);
+
+            $pastProfit->update($request->all());
+
+            return response()->json([
+                'status' => true,
+                'message' => 'SHU berhasil diupdate',
+                'past-profit' => $pastProfit,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error while updating past profit',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

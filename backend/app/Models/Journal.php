@@ -15,7 +15,8 @@ class Journal extends Model
         'estimation_id',
         'user_id',
         'balance',
-        'initial_balance'
+        'initial_balance',
+        'created_at',
     ];
 
     public function user()

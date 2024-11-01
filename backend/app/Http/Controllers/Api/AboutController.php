@@ -63,9 +63,63 @@ class AboutController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, About $about)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'legal_entity_id' => 'required|integer',
+            'legal_entity_date' => 'required',
+            'president' => 'required|string|max:255',
+            'vice_president' => 'required|string|max:255',
+            'secretary' => 'required|string|max:255',
+            'supervisor' => 'required|string|max:255',
+            'supervisor2' => 'required|string|max:255',
+            'supervisor3' => 'required|string|max:255',
+            'treasurer' => 'required|string|max:255',
+            'syariah_supervisor' => 'required|string|max:255',
+            'syariah_supervisor2' => 'required|string|max:255',
+            'syariah_supervisor3' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'accounting_period' => 'required|string|max:255',
+            'accounting_year' => 'required|string|max:255',
+            'first_accounting_date' => 'required|max:255',
+            'last_accounting_date' => 'required|max:255'
+        ]);
+
+        try {
+            $about = About::findOrFail($id);
+
+            $about->update($request->all());
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Identitas Koperasi berhasil diupdate',
+                'about' => $about,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error while updating about',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function uploadPdf(Request $request)
+    {
+        $about = About::where('id', 1)->first();
+        $file = $request->file('pdf');
+        $filename = $file->getClientOriginalName();
+        $path = $file->move(storage_path('app/public/pdf'), $filename);
+        $about->pdf = 'storage/pdf/' . $filename;
+        $about->save();
+        return response()->json([
+            'message' => 'PDF berhasil diunggah',
+            'pdf' => $about->pdf
+        ]);
     }
 
     /**
